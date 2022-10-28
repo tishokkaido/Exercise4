@@ -7,19 +7,28 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.CheckBox
+import android.widget.RadioButton
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.RecyclerView
 
 class MainActivity : AppCompatActivity(), PrefectureRecyclerAdapter.OnItemClickListener {
-    private lateinit var adapter: PrefectureRecyclerAdapter
-    private val selectedItemList: MutableList<String> = mutableListOf() // 選択済都道府県リスト
+    // 都道府県のリスト
+    private val prefectureList = PREFECTURE_LIST.map {
+        if (it.contains("東京")) {
+            PrefectureRecyclerAdapter.Prefecture(true, it)
+        } else {
+            PrefectureRecyclerAdapter.Prefecture(prefecture = it)
+        }
+    }
+    private lateinit var adapter: PrefectureRecyclerAdapter // RecyclerViewAdapter
+    private var selectedItem: String = "東京都" // 選択済都道府県
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        adapter = PrefectureRecyclerAdapter(this, PREFECTURE_LIST)
+        adapter = PrefectureRecyclerAdapter(this, prefectureList)
         findViewById<RecyclerView>(R.id.list).adapter = adapter
 
         // OKボタンのクリック処理
@@ -27,7 +36,7 @@ class MainActivity : AppCompatActivity(), PrefectureRecyclerAdapter.OnItemClickL
             // 都道府県のリストを出力
             Toast.makeText(
                 this,
-                selectedItemList.joinToString(","),
+                selectedItem,
                 Toast.LENGTH_SHORT
             ).show()
         }
@@ -35,17 +44,11 @@ class MainActivity : AppCompatActivity(), PrefectureRecyclerAdapter.OnItemClickL
 
     @SuppressLint("NotifyDataSetChanged")
     override fun onItemClicked(prefecture: PrefectureRecyclerAdapter.Prefecture) {
-        // アイテムの選択状態を反転させる
-        prefecture.isSelected = prefecture.isSelected != true
-
-        // 都道府県の選択状態をチェック
-        if (prefecture.isSelected) {
-            // 選択されている場合は選択済リストに追加
-            selectedItemList.add(prefecture.prefecture)
-        } else {
-            // 選択されていない場合は選択済リストから削除
-            selectedItemList.remove(prefecture.prefecture)
-        }
+        prefectureList.forEach { it.isSelected = false }
+        // アイテムの選択状態を選択済にする
+        prefecture.isSelected = true
+        // 選択されている都道府県を変更
+        selectedItem = prefecture.prefecture
         // リストの内容に変更があったことをAdapterに通知
         adapter.notifyDataSetChanged()
     }
@@ -65,7 +68,7 @@ class MainActivity : AppCompatActivity(), PrefectureRecyclerAdapter.OnItemClickL
 
 class PrefectureRecyclerAdapter(
     private val listener: OnItemClickListener,
-    prefectures: List<String>
+    private val prefectures: List<Prefecture>
 ) : RecyclerView.Adapter<PrefectureRecyclerAdapter.PrefectureViewHolder>() {
     /**
      * 都道府県の情報を保持するデータクラス
@@ -94,7 +97,7 @@ class PrefectureRecyclerAdapter(
             }
 
             // Viewへの設定
-            itemView.findViewById<CheckBox>(R.id.checkbox_prefecture).also {
+            itemView.findViewById<RadioButton>(R.id.checkbox_prefecture).also {
                 it.isChecked = prefecture.isSelected
                 it.text = prefecture.prefecture
             }
@@ -109,11 +112,7 @@ class PrefectureRecyclerAdapter(
         fun onItemClicked(prefecture: Prefecture)
     }
 
-    // 都道府県リスト
-    private val prefectureList =
-        prefectures.map { Prefecture(prefecture = it) }
-
-    override fun getItemCount(): Int = prefectureList.size
+    override fun getItemCount(): Int = prefectures.size
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PrefectureViewHolder {
         // アイテムのViewを生成
@@ -124,6 +123,6 @@ class PrefectureRecyclerAdapter(
 
     override fun onBindViewHolder(holder: PrefectureViewHolder, position: Int) {
         // データをViewHolderに紐づける
-        holder.bind(prefectureList[position], listener)
+        holder.bind(prefectures[position], listener)
     }
 }
