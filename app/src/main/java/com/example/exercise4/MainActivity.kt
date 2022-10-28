@@ -6,7 +6,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
-import android.widget.CheckBox
 import android.widget.RadioButton
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -97,7 +96,7 @@ class PrefectureRecyclerAdapter(
             }
 
             // Viewへの設定
-            itemView.findViewById<RadioButton>(R.id.checkbox_prefecture).also {
+            itemView.findViewById<RadioButton>(R.id.radiobutton_prefecture).also {
                 it.isChecked = prefecture.isSelected
                 it.text = prefecture.prefecture
             }

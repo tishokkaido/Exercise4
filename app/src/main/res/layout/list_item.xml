@@ -6,7 +6,7 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <RadioButton
-        android:id="@+id/checkbox_prefecture"
+        android:id="@+id/radiobutton_prefecture"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="start|center_vertical"
